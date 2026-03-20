@@ -42,7 +42,7 @@ class _MagneticButtonState extends State<MagneticButton>
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _resetCtrl,
-      curve: Curves.elasticOut,
+      curve: Curves.easeOutCubic,
     ));
     _resetAnim.addListener(() {
       setState(() => _offset = _resetAnim.value);
@@ -57,7 +57,7 @@ class _MagneticButtonState extends State<MagneticButton>
     final center = Offset(box.size.width / 2, box.size.height / 2);
     final delta = localPos - center;
     const magnetRadius = 80.0;
-    const maxPull = 10.0;
+    const maxPull = 5.0;
 
     final distance = delta.distance;
     if (distance < magnetRadius) {
@@ -86,7 +86,7 @@ class _MagneticButtonState extends State<MagneticButton>
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _resetCtrl,
-      curve: Curves.elasticOut,
+      curve: Curves.easeOutCubic,
     ))
       ..addListener(() => setState(() => _offset = _resetAnim.value));
     _resetCtrl.forward(from: 0);
@@ -111,7 +111,7 @@ class _MagneticButtonState extends State<MagneticButton>
         child: GestureDetector(
           onTap: widget.onTap,
           child: Transform.translate(
-            offset: _offset * 20,
+            offset: _offset * 6,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               padding: const EdgeInsets.symmetric(
