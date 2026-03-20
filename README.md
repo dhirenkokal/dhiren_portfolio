@@ -2,7 +2,6 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-Web-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT-00B4FF?style=for-the-badge)](LICENSE)
 
 </div>
 
