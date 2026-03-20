@@ -71,35 +71,21 @@ class _LiveCountersState extends State<LiveCounters>
       onVisibilityChanged: (info) {
         if (info.visibleFraction > 0.3) _start();
       },
-      child: isMobile
-          ? Column(
-              children: _counters
-                  .asMap()
-                  .entries
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _CounterCard(
-                          data: e.value,
-                          anim: _anim,
-                          delay: e.key * 200,
-                        ),
-                      ))
-                  .toList(),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _counters
-                  .asMap()
-                  .entries
-                  .map((e) => Expanded(
-                        child: _CounterCard(
-                          data: e.value,
-                          anim: _anim,
-                          delay: e.key * 200,
-                        ),
-                      ))
-                  .toList(),
-            ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: _counters
+            .asMap()
+            .entries
+            .map((e) => Expanded(
+                  child: _CounterCard(
+                    data: e.value,
+                    anim: _anim,
+                    delay: e.key * 200,
+                    isMobile: isMobile,
+                  ),
+                ))
+            .toList(),
+      ),
     );
   }
 }
@@ -108,7 +94,8 @@ class _CounterCard extends StatefulWidget {
   final _CounterData data;
   final Animation<double> anim;
   final int delay;
-  const _CounterCard({required this.data, required this.anim, required this.delay});
+  final bool isMobile;
+  const _CounterCard({required this.data, required this.anim, required this.delay, this.isMobile = false});
 
   @override
   State<_CounterCard> createState() => _CounterCardState();
@@ -119,7 +106,7 @@ class _CounterCardState extends State<_CounterCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
+    final isMobile = widget.isMobile;
 
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
@@ -132,9 +119,10 @@ class _CounterCardState extends State<_CounterCard> {
               (widget.data.end * widget.anim.value).round();
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            margin: EdgeInsets.all(isMobile ? 0 : 12),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 24, vertical: 28),
+            margin: EdgeInsets.all(isMobile ? 5 : 12),
+            padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 8 : 24,
+                vertical: isMobile ? 16 : 28),
             decoration: BoxDecoration(
               color: _hovered
                   ? AppColors.cardBackground
@@ -162,7 +150,7 @@ class _CounterCardState extends State<_CounterCard> {
                 Icon(
                   widget.data.icon,
                   color: AppColors.accent.withOpacity(0.7),
-                  size: 22,
+                  size: isMobile ? 16 : 22,
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -174,7 +162,9 @@ class _CounterCardState extends State<_CounterCard> {
                 const SizedBox(height: 8),
                 Text(
                   widget.data.label,
-                  style: AppTextStyles.counterLabel,
+                  style: isMobile
+                      ? AppTextStyles.counterLabel.copyWith(fontSize: 8, letterSpacing: 0.5)
+                      : AppTextStyles.counterLabel,
                   textAlign: TextAlign.center,
                 ),
               ],

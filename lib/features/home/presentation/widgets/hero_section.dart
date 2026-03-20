@@ -284,8 +284,22 @@ class _HeroVisualState extends State<_HeroVisual>
           child: SizedBox(
             width: widget.size,
             height: widget.size,
-            child: CustomPaint(
-              painter: _AvatarPainter(),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CustomPaint(
+                  painter: _AvatarPainter(),
+                  size: Size(widget.size, widget.size),
+                ),
+                ClipOval(
+                  child: Image.asset(
+                    'assets/images/luffy.jpeg',
+                    width: widget.size * 0.76,
+                    height: widget.size * 0.76,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ],
             ),
           )
               .animate(delay: 300.ms)
@@ -358,24 +372,6 @@ class _AvatarPainter extends CustomPainter {
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
 
-    // DK initials
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: 'DK',
-        style: TextStyle(
-          color: AppColors.accent,
-          fontSize: r * 0.5,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 4,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-
-    textPainter.paint(
-      canvas,
-      Offset(cx - textPainter.width / 2, cy - textPainter.height / 2),
-    );
   }
 
   @override
