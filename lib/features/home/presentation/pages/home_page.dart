@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/app_color_tokens.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/live_counters.dart';
 import '../widgets/mesh_background.dart';
@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
@@ -38,7 +39,7 @@ class _HomePageState extends State<HomePage> {
     final hPad = isMobile ? 20.0 : isTablet ? 32.0 : screenWidth * 0.08;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: Stack(
         children: [
           // Animated mesh background (full screen, fixed)
@@ -98,21 +99,22 @@ class _HomePageState extends State<HomePage> {
 class _GlowDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       height: 1,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             Colors.transparent,
-            AppColors.accent.withOpacity(0.3),
-            AppColors.accent.withOpacity(0.6),
-            AppColors.accent.withOpacity(0.3),
+            colors.accent.withOpacity(0.3),
+            colors.accent.withOpacity(0.6),
+            colors.accent.withOpacity(0.3),
             Colors.transparent,
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.accent.withOpacity(0.2),
+            color: colors.accent.withOpacity(0.2),
             blurRadius: 10,
           ),
         ],
@@ -149,6 +151,7 @@ class _ScrollHintState extends State<_ScrollHint>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AnimatedBuilder(
       animation: _anim,
       builder: (context, _) => Column(
@@ -156,7 +159,7 @@ class _ScrollHintState extends State<_ScrollHint>
           Text(
             'SCROLL DOWN',
             style: TextStyle(
-              color: AppColors.textMuted.withOpacity(0.4 + 0.3 * _anim.value),
+              color: colors.textMuted.withOpacity(0.4 + 0.3 * _anim.value),
               fontSize: 10,
               letterSpacing: 3,
               fontWeight: FontWeight.w500,
@@ -167,7 +170,7 @@ class _ScrollHintState extends State<_ScrollHint>
             offset: Offset(0, 4 * _anim.value),
             child: Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: AppColors.accent.withOpacity(0.4 + 0.4 * _anim.value),
+              color: colors.accent.withOpacity(0.4 + 0.4 * _anim.value),
               size: 24,
             ),
           ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../providers/theme_notifier.dart';
+import '../../theme/app_color_tokens.dart';
+import '../theme/theme_circle_animation.dart';
 
 class PortfolioScaffold extends StatefulWidget {
   final Widget child;
@@ -27,12 +29,13 @@ class _PortfolioScaffoldState extends State<PortfolioScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final location = GoRouterState.of(context).uri.toString();
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       drawer: isMobile
           ? _SideDrawer(navItems: _navItems, location: location)
           : null,
@@ -50,8 +53,8 @@ class _PortfolioScaffoldState extends State<PortfolioScaffold> {
                   final location = GoRouterState.of(context).uri.toString();
                   context.go(location);
                 },
-                color: AppColors.accent,
-                backgroundColor: AppColors.cardBackground,
+                color: colors.accent,
+                backgroundColor: colors.cardBackground,
                 strokeWidth: 2.5,
                 displacement: 80,
                 child: widget.child,
@@ -67,12 +70,12 @@ class _PortfolioScaffoldState extends State<PortfolioScaffold> {
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
                   color: _isScrolled
-                      ? AppColors.backgroundSecondary.withOpacity(0.95)
+                      ? colors.backgroundSecondary.withOpacity(0.95)
                       : Colors.transparent,
                   border: _isScrolled
-                      ? const Border(
+                      ? Border(
                           bottom: BorderSide(
-                            color: AppColors.cardBorder,
+                            color: colors.cardBorder,
                             width: 1,
                           ),
                         )
@@ -100,11 +103,24 @@ class _PortfolioScaffoldState extends State<PortfolioScaffold> {
                             );
                           }).toList(),
                         ),
-                        // CTA
-                        _HireMeButton(),
+                        // Theme toggle + CTA
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const _ThemeToggleButton(),
+                            const SizedBox(width: 12),
+                            _HireMeButton(),
+                          ],
+                        ),
                       ] else
-                        _MobileMenuButton(
-                          onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const _ThemeToggleButton(),
+                            _MobileMenuButton(
+                              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                            ),
+                          ],
                         ),
                     ],
                   ),
@@ -121,6 +137,112 @@ class _PortfolioScaffoldState extends State<PortfolioScaffold> {
   }
 }
 
+// ── Theme Toggle Button ────────────────────────────────────────────────────────
+
+class _ThemeToggleButton extends StatefulWidget {
+  const _ThemeToggleButton();
+
+  @override
+  State<_ThemeToggleButton> createState() => _ThemeToggleButtonState();
+}
+
+class _ThemeToggleButtonState extends State<_ThemeToggleButton> {
+  bool _hovered = false;
+  final _buttonKey = GlobalKey();
+
+  void _onTap(BuildContext outerContext, bool isDark) {
+    final box =
+        _buttonKey.currentContext?.findRenderObject() as RenderBox?;
+    Offset? origin;
+    RRect? exclusionRRect;
+
+    if (box != null && box.hasSize) {
+      // Expand from the sun side (light→dark) or moon side (dark→light)
+      final targetX = isDark
+          ? box.size.width * 0.25   // going to light: expand from left (sun)
+          : box.size.width * 0.75;  // going to dark:  expand from right (moon)
+      origin =
+          box.localToGlobal(Offset(targetX, box.size.height / 2));
+
+      final topLeft = box.localToGlobal(Offset.zero);
+      exclusionRRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(
+            topLeft.dx, topLeft.dy, box.size.width, box.size.height),
+        Radius.circular(box.size.height / 2),
+      );
+    }
+
+    ThemeCircleAnimation.of(outerContext)?.toggle(
+      onToggle: () => themeNotifier.value =
+          isDark ? ThemeMode.light : ThemeMode.dark,
+      origin: origin,
+      isReverse: isDark,
+      exclusionRRect: exclusionRRect,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (_, mode, __) {
+        final isDark = mode == ThemeMode.dark;
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: GestureDetector(
+            onTap: () => _onTap(context, isDark),
+            child: AnimatedContainer(
+              key: _buttonKey,
+              duration: const Duration(milliseconds: 200),
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: _hovered
+                    ? LinearGradient(colors: colors.heroGradient)
+                    : null,
+                color: _hovered ? null : colors.cardBackground,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _hovered
+                      ? colors.accent.withOpacity(0.0)
+                      : colors.cardBorder,
+                  width: 1,
+                ),
+                boxShadow: _hovered
+                    ? [
+                        BoxShadow(
+                          color: colors.accent.withOpacity(0.3),
+                          blurRadius: 16,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, anim) =>
+                    ScaleTransition(scale: anim, child: child),
+                child: Icon(
+                  isDark
+                      ? Icons.light_mode_rounded
+                      : Icons.dark_mode_rounded,
+                  key: ValueKey(isDark),
+                  color: _hovered ? Colors.white : colors.accent,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ── Logo ──────────────────────────────────────────────────────────────────────
 
 class _Logo extends StatefulWidget {
@@ -133,6 +255,7 @@ class _LogoState extends State<_Logo> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -149,7 +272,7 @@ class _LogoState extends State<_Logo> {
                 height: 36,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: AppColors.heroGradient,
+                    colors: colors.heroGradient,
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -157,7 +280,7 @@ class _LogoState extends State<_Logo> {
                   boxShadow: _hovered
                       ? [
                           BoxShadow(
-                            color: AppColors.accent.withOpacity(0.5),
+                            color: colors.accent.withOpacity(0.5),
                             blurRadius: 20,
                             spreadRadius: 2,
                           )
@@ -200,6 +323,7 @@ class _NavLinkState extends State<_NavLink> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -215,10 +339,10 @@ class _NavLinkState extends State<_NavLink> {
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: widget.isActive
-                    ? AppTextStyles.navLinkActive
+                    ? AppTextStyles.navLinkActive.copyWith(color: colors.accent)
                     : _hovered
-                        ? AppTextStyles.navLink.copyWith(color: AppColors.textPrimary)
-                        : AppTextStyles.navLink,
+                        ? AppTextStyles.navLink.copyWith(color: colors.textPrimary)
+                        : AppTextStyles.navLink.copyWith(color: colors.textSecondary),
                 child: Text(widget.item.label),
               ),
               const SizedBox(height: 3),
@@ -227,11 +351,11 @@ class _NavLinkState extends State<_NavLink> {
                 height: 2,
                 width: widget.isActive ? 20 : 0,
                 decoration: BoxDecoration(
-                  color: AppColors.accent,
+                  color: colors.accent,
                   borderRadius: BorderRadius.circular(1),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.accent.withOpacity(0.6),
+                      color: colors.accent.withOpacity(0.6),
                       blurRadius: 6,
                     ),
                   ],
@@ -257,6 +381,7 @@ class _HireMeButtonState extends State<_HireMeButton> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -267,28 +392,29 @@ class _HireMeButtonState extends State<_HireMeButton> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: AppColors.heroGradient,
-            ),
+            gradient: LinearGradient(colors: colors.heroGradient),
             borderRadius: BorderRadius.circular(24),
             boxShadow: _hovered
                 ? [
                     BoxShadow(
-                      color: AppColors.accent.withOpacity(0.4),
+                      color: colors.accent.withOpacity(0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: AppColors.accent.withOpacity(0.15),
+                      color: colors.accent.withOpacity(0.15),
                       blurRadius: 10,
                     ),
                   ],
           ),
           child: Text(
             'Hire Me',
-            style: AppTextStyles.buttonLabel.copyWith(fontSize: 13),
+            style: AppTextStyles.buttonLabel.copyWith(
+              color: Colors.white,
+              fontSize: 13,
+            ),
           ),
         ),
       ),
@@ -304,9 +430,10 @@ class _MobileMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return IconButton(
       onPressed: onTap,
-      icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
+      icon: Icon(Icons.menu_rounded, color: colors.textPrimary),
     );
   }
 }
@@ -320,8 +447,9 @@ class _SideDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Drawer(
-      backgroundColor: AppColors.backgroundSecondary,
+      backgroundColor: colors.backgroundSecondary,
       width: 280,
       child: SafeArea(
         child: Column(
@@ -341,14 +469,14 @@ class _SideDrawer extends StatelessWidget {
                         height: 40,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: AppColors.heroGradient,
+                            colors: colors.heroGradient,
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.accent.withOpacity(0.4),
+                              color: colors.accent.withOpacity(0.4),
                               blurRadius: 12,
                               spreadRadius: 1,
                             ),
@@ -373,7 +501,7 @@ class _SideDrawer extends StatelessWidget {
                           Text(
                             'Dhiren Kokal',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textPrimary,
+                              color: colors.textPrimary,
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                             ),
@@ -381,7 +509,7 @@ class _SideDrawer extends StatelessWidget {
                           Text(
                             'Mobile Engineer',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textMuted,
+                              color: colors.textMuted,
                               fontSize: 11,
                             ),
                           ),
@@ -392,9 +520,9 @@ class _SideDrawer extends StatelessWidget {
                   // Close button
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close_rounded,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                       size: 22,
                     ),
                   ),
@@ -406,7 +534,7 @@ class _SideDrawer extends StatelessWidget {
             Container(
               height: 1,
               margin: const EdgeInsets.symmetric(horizontal: 20),
-              color: AppColors.cardBorder,
+              color: colors.cardBorder,
             ),
             const SizedBox(height: 12),
 
@@ -432,12 +560,12 @@ class _SideDrawer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 1, color: AppColors.cardBorder),
+                  Container(height: 1, color: colors.cardBorder),
                   const SizedBox(height: 16),
                   Text(
                     'Available for Work',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.accent,
+                      color: colors.accent,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -446,7 +574,7 @@ class _SideDrawer extends StatelessWidget {
                   Text(
                     'dhirenkokal@gmail.com',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                       fontSize: 11,
                     ),
                   ),
@@ -479,6 +607,7 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -492,13 +621,13 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
             color: widget.isActive
-                ? AppColors.accent.withOpacity(0.12)
+                ? colors.accent.withOpacity(0.12)
                 : _hovered
-                    ? AppColors.cardBackground.withOpacity(0.5)
+                    ? colors.cardBackground.withOpacity(0.5)
                     : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: widget.isActive
-                ? Border.all(color: AppColors.accent.withOpacity(0.3), width: 1)
+                ? Border.all(color: colors.accent.withOpacity(0.3), width: 1)
                 : null,
           ),
           child: Row(
@@ -510,18 +639,18 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                 height: 36,
                 decoration: BoxDecoration(
                   color: widget.isActive
-                      ? AppColors.accent.withOpacity(0.2)
-                      : AppColors.cardBackground.withOpacity(0.6),
+                      ? colors.accent.withOpacity(0.2)
+                      : colors.cardBackground.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   widget.item.icon,
                   size: 18,
                   color: widget.isActive
-                      ? AppColors.accent
+                      ? colors.accent
                       : _hovered
-                          ? AppColors.textPrimary
-                          : AppColors.textMuted,
+                          ? colors.textPrimary
+                          : colors.textMuted,
                 ),
               ),
               const SizedBox(width: 14),
@@ -530,11 +659,12 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                 widget.item.label,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: widget.isActive
-                      ? AppColors.accent
+                      ? colors.accent
                       : _hovered
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                  fontWeight: widget.isActive ? FontWeight.w600 : FontWeight.w400,
+                          ? colors.textPrimary
+                          : colors.textSecondary,
+                  fontWeight:
+                      widget.isActive ? FontWeight.w600 : FontWeight.w400,
                   fontSize: 14,
                 ),
               ),
@@ -545,11 +675,11 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                   width: 6,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: AppColors.accent,
+                    color: colors.accent,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.accent.withOpacity(0.6),
+                        color: colors.accent.withOpacity(0.6),
                         blurRadius: 6,
                       ),
                     ],

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'core/providers/theme_notifier.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/cursor/glowing_orb_cursor.dart';
 import 'core/widgets/preloader/cinematic_preloader.dart';
+import 'core/widgets/theme/theme_circle_animation.dart';
 import 'router/app_router.dart';
 
 void main() {
@@ -37,13 +39,20 @@ class _PortfolioAppState extends State<PortfolioApp> {
       );
     }
 
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Dhiren Kokal — Portfolio',
-      theme: AppTheme.dark,
-      routerConfig: appRouter,
-      builder: (context, child) => GlowingOrbCursor(
-        child: child ?? const SizedBox.shrink(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (context, themeMode, _) => MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Dhiren Kokal — Portfolio',
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeMode,
+        routerConfig: appRouter,
+        builder: (context, child) => ThemeCircleAnimation(
+          child: GlowingOrbCursor(
+            child: child ?? const SizedBox.shrink(),
+          ),
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/app_color_tokens.dart';
 
 class MeshBackground extends StatefulWidget {
   final double scrollOffset;
@@ -31,6 +31,7 @@ class _MeshBackgroundState extends State<MeshBackground>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) => RepaintBoundary(
@@ -38,6 +39,7 @@ class _MeshBackgroundState extends State<MeshBackground>
           painter: _MeshPainter(
             t: _ctrl.value,
             scrollOffset: widget.scrollOffset,
+            colors: colors,
           ),
           child: const SizedBox.expand(),
         ),
@@ -49,20 +51,30 @@ class _MeshBackgroundState extends State<MeshBackground>
 class _MeshPainter extends CustomPainter {
   final double t;
   final double scrollOffset;
+  final AppColorTokens colors;
 
-  _MeshPainter({required this.t, required this.scrollOffset});
+  _MeshPainter({
+    required this.t,
+    required this.scrollOffset,
+    required this.colors,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     // Solid base
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = AppColors.background,
+      Paint()..color = colors.background,
     );
 
     final scrollFactor = scrollOffset * 0.0003;
 
-    // Animated blob positions using sine waves
+    // In dark mode: dark navy blobs on near-black base
+    // In light mode: saturated mid-blues on sky-blue base — must be visible
+    final blob1Color = colors.isDark ? const Color(0xFF001A3A) : const Color(0xFF3D73D8);
+    final blob2Color = colors.isDark ? const Color(0xFF001F3D) : const Color(0xFF4A7BE5);
+    final blob3Color = colors.isDark ? const Color(0xFF002040) : const Color(0xFF2E64CC);
+
     final blobs = [
       _Blob(
         center: Offset(
@@ -70,8 +82,8 @@ class _MeshPainter extends CustomPainter {
           size.height * (0.2 + 0.08 * math.cos(t * 2 * math.pi + 1.0) + scrollFactor),
         ),
         radius: size.width * 0.35,
-        color: const Color(0xFF001A3A),
-        opacity: 0.9,
+        color: blob1Color,
+        opacity: colors.isDark ? 0.9 : 0.28,
       ),
       _Blob(
         center: Offset(
@@ -79,8 +91,8 @@ class _MeshPainter extends CustomPainter {
           size.height * (0.15 + 0.1 * math.sin(t * 2 * math.pi + 0.5) + scrollFactor * 0.5),
         ),
         radius: size.width * 0.3,
-        color: const Color(0xFF001F3D),
-        opacity: 0.8,
+        color: blob2Color,
+        opacity: colors.isDark ? 0.8 : 0.22,
       ),
       _Blob(
         center: Offset(
@@ -88,8 +100,8 @@ class _MeshPainter extends CustomPainter {
           size.height * (0.6 + 0.1 * math.cos(t * 2 * math.pi + 1.5) + scrollFactor * 1.2),
         ),
         radius: size.width * 0.4,
-        color: const Color(0xFF002040),
-        opacity: 0.6,
+        color: blob3Color,
+        opacity: colors.isDark ? 0.6 : 0.18,
       ),
       // Accent glow blob
       _Blob(
@@ -98,8 +110,8 @@ class _MeshPainter extends CustomPainter {
           size.height * (0.7 + 0.1 * math.sin(t * 2 * math.pi + 2.0) + scrollFactor * 0.8),
         ),
         radius: size.width * 0.2,
-        color: AppColors.accentGlow,
-        opacity: 0.04,
+        color: colors.accentGlow,
+        opacity: colors.isDark ? 0.04 : 0.14,
       ),
       _Blob(
         center: Offset(
@@ -107,8 +119,8 @@ class _MeshPainter extends CustomPainter {
           size.height * (0.5 + 0.12 * math.cos(t * 2 * math.pi + 3.0) + scrollFactor),
         ),
         radius: size.width * 0.18,
-        color: AppColors.accent,
-        opacity: 0.03,
+        color: colors.accent,
+        opacity: colors.isDark ? 0.03 : 0.10,
       ),
     ];
 
@@ -132,7 +144,7 @@ class _MeshPainter extends CustomPainter {
   void _drawGrid(Canvas canvas, Size size) {
     const gridSpacing = 60.0;
     final paint = Paint()
-      ..color = AppColors.cardBorder.withOpacity(0.15)
+      ..color = colors.cardBorder.withOpacity(colors.isDark ? 0.15 : 0.3)
       ..strokeWidth = 0.5;
 
     for (double x = 0; x < size.width; x += gridSpacing) {
@@ -145,7 +157,7 @@ class _MeshPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MeshPainter old) =>
-      old.t != t || old.scrollOffset != scrollOffset;
+      old.t != t || old.scrollOffset != scrollOffset || old.colors.isDark != colors.isDark;
 }
 
 class _Blob {
