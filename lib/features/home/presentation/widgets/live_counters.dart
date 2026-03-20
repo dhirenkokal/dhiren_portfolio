@@ -71,23 +71,18 @@ class _LiveCountersState extends State<LiveCounters>
       onVisibilityChanged: (info) {
         if (info.visibleFraction > 0.3) _start();
       },
-      child: IntrinsicHeight(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _counters
-              .asMap()
-              .entries
-              .map((e) => Expanded(
-                    child: _CounterCard(
-                      data: e.value,
-                      anim: _anim,
-                      delay: e.key * 200,
-                      isMobile: isMobile,
-                    ),
-                  ))
-              .toList(),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _counters
+            .asMap()
+            .entries
+            .map((e) => _CounterCard(
+                  data: e.value,
+                  anim: _anim,
+                  delay: e.key * 200,
+                  isMobile: isMobile,
+                ))
+            .toList(),
       ),
     );
   }
@@ -122,10 +117,8 @@ class _CounterCardState extends State<_CounterCard> {
               (widget.data.end * widget.anim.value).round();
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            margin: EdgeInsets.all(isMobile ? 5 : 12),
-            padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 8 : 24,
-                vertical: isMobile ? 16 : 28),
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: _hovered
                   ? AppColors.cardBackground
@@ -147,28 +140,39 @@ class _CounterCardState extends State<_CounterCard> {
                     ]
                   : [],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: Row(
               children: [
-                Icon(
-                  widget.data.icon,
-                  color: AppColors.accent.withOpacity(0.7),
-                  size: isMobile ? 16 : 22,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    widget.data.icon,
+                    color: AppColors.accent.withOpacity(0.8),
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  '$value${widget.data.suffix}',
-                  style: isMobile
-                      ? AppTextStyles.counterValueMobile
-                      : AppTextStyles.counterValue,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.data.label,
-                  style: isMobile
-                      ? AppTextStyles.counterLabel.copyWith(fontSize: 8, letterSpacing: 0.5)
-                      : AppTextStyles.counterLabel,
-                  textAlign: TextAlign.center,
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$value${widget.data.suffix}',
+                      style: AppTextStyles.counterValueMobile,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.data.label,
+                      style: AppTextStyles.counterLabel.copyWith(
+                        fontSize: 11,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
