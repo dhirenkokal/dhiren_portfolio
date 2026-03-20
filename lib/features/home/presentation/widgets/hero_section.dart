@@ -215,13 +215,9 @@ class _HeroSummary extends StatelessWidget {
     final crossAxis = isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start;
 
     final base = AppTextStyles.bodyMedium;
-    final highlight = base.copyWith(
-      color: AppColors.accent,
-      fontWeight: FontWeight.w600,
-    );
     final strong = base.copyWith(
       color: AppColors.textPrimary,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
     );
 
     return ConstrainedBox(
@@ -236,17 +232,16 @@ class _HeroSummary extends StatelessWidget {
               children: [
                 TextSpan(text: 'I build '),
                 TextSpan(text: 'cross-platform mobile apps', style: strong),
-                TextSpan(text: ' that are fast, maintainable, and production-ready. '),
-                TextSpan(text: 'Proficient in '),
-                TextSpan(text: 'Flutter', style: highlight),
+                TextSpan(text: ' that are fast, maintainable, and production-ready. Proficient in '),
+                _codeChip('Flutter'),
                 TextSpan(text: ' and native '),
-                TextSpan(text: 'Android', style: highlight),
+                _codeChip('Android'),
                 TextSpan(text: ' ('),
-                TextSpan(text: 'Kotlin', style: highlight),
+                _codeChip('Kotlin'),
                 TextSpan(text: ' + '),
-                TextSpan(text: 'Jetpack Compose', style: highlight),
-                TextSpan(text: '), I\'ve architected a '),
-                TextSpan(text: '747K+ line', style: highlight),
+                _codeChip('Jetpack Compose'),
+                TextSpan(text: "), I've architected a "),
+                TextSpan(text: '747K+ line', style: strong),
                 TextSpan(text: ' IoT platform from scratch — spanning '),
                 TextSpan(text: 'BLE device control', style: strong),
                 TextSpan(text: ', real-time dashboards, and '),
@@ -270,6 +265,31 @@ class _HeroSummary extends StatelessWidget {
       ),
     );
   }
+}
+
+InlineSpan _codeChip(String label) {
+  return WidgetSpan(
+    alignment: PlaceholderAlignment.middle,
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: AppColors.accent.withOpacity(0.25), width: 1),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontFamily: 'JetBrainsMono',
+          fontSize: 13,
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w500,
+          height: 1,
+        ),
+      ),
+    ),
+  );
 }
 
 class _TechTag extends StatelessWidget {

@@ -44,7 +44,20 @@ class _PortfolioScaffoldState extends State<PortfolioScaffold> {
         },
         child: Stack(
           children: [
-            widget.child,
+            if (isMobile)
+              RefreshIndicator(
+                onRefresh: () async {
+                  final location = GoRouterState.of(context).uri.toString();
+                  context.go(location);
+                },
+                color: AppColors.accent,
+                backgroundColor: AppColors.cardBackground,
+                strokeWidth: 2.5,
+                displacement: 80,
+                child: widget.child,
+              )
+            else
+              widget.child,
             // Navbar
             Positioned(
               top: 0,

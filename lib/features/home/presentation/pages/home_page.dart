@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
           // Scrollable content
           SingleChildScrollView(
             controller: _scrollCtrl,
-            physics: const BouncingScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
