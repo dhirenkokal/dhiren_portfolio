@@ -156,16 +156,7 @@ class _HeroContent extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Summary
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
-          child: Text(
-            'Specializing in Kotlin, Jetpack Compose & Clean Architecture.\n'
-            'Built a 747K+ line Flutter IoT platform from the ground up,\n'
-            'integrating AI tooling to ship production apps faster.',
-            style: AppTextStyles.bodyMedium,
-            textAlign: isMobile ? TextAlign.center : TextAlign.start,
-          ),
-        )
+        _HeroSummary(isMobile: isMobile)
             .animate()
             .fadeIn(duration: 600.ms, delay: 500.ms),
 
@@ -210,6 +201,99 @@ class _HeroContent extends StatelessWidget {
             .animate()
             .fadeIn(duration: 600.ms, delay: 800.ms),
       ],
+    );
+  }
+}
+
+class _HeroSummary extends StatelessWidget {
+  final bool isMobile;
+  const _HeroSummary({required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    final align = isMobile ? TextAlign.center : TextAlign.start;
+    final crossAxis = isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start;
+
+    final base = AppTextStyles.bodyMedium;
+    final highlight = base.copyWith(
+      color: AppColors.accent,
+      fontWeight: FontWeight.w600,
+    );
+    final strong = base.copyWith(
+      color: AppColors.textPrimary,
+      fontWeight: FontWeight.w500,
+    );
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: Column(
+        crossAxisAlignment: crossAxis,
+        children: [
+          RichText(
+            textAlign: align,
+            text: TextSpan(
+              style: base,
+              children: [
+                TextSpan(text: 'I build '),
+                TextSpan(text: 'cross-platform mobile apps', style: strong),
+                TextSpan(text: ' that are fast, maintainable, and production-ready. '),
+                TextSpan(text: 'Proficient in '),
+                TextSpan(text: 'Flutter', style: highlight),
+                TextSpan(text: ' and native '),
+                TextSpan(text: 'Android', style: highlight),
+                TextSpan(text: ' ('),
+                TextSpan(text: 'Kotlin', style: highlight),
+                TextSpan(text: ' + '),
+                TextSpan(text: 'Jetpack Compose', style: highlight),
+                TextSpan(text: '), I\'ve architected a '),
+                TextSpan(text: '747K+ line', style: highlight),
+                TextSpan(text: ' IoT platform from scratch — spanning '),
+                TextSpan(text: 'BLE device control', style: strong),
+                TextSpan(text: ', real-time dashboards, and '),
+                TextSpan(text: 'AI-assisted', style: strong),
+                TextSpan(text: ' development workflows.'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Tech tag row
+          Wrap(
+            alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
+            spacing: 8,
+            runSpacing: 8,
+            children: const [
+              'Flutter', 'Kotlin', 'Jetpack Compose',
+              'Clean Architecture', 'BLE / IoT', 'Firebase',
+            ].map((tag) => _TechTag(label: tag)).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TechTag extends StatelessWidget {
+  final String label;
+  const _TechTag({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: AppColors.accent.withOpacity(0.2), width: 1),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 12,
+          color: AppColors.textSecondary,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.3,
+        ),
+      ),
     );
   }
 }

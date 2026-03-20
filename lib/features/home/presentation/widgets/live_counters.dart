@@ -71,20 +71,23 @@ class _LiveCountersState extends State<LiveCounters>
       onVisibilityChanged: (info) {
         if (info.visibleFraction > 0.3) _start();
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _counters
-            .asMap()
-            .entries
-            .map((e) => Expanded(
-                  child: _CounterCard(
-                    data: e.value,
-                    anim: _anim,
-                    delay: e.key * 200,
-                    isMobile: isMobile,
-                  ),
-                ))
-            .toList(),
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _counters
+              .asMap()
+              .entries
+              .map((e) => Expanded(
+                    child: _CounterCard(
+                      data: e.value,
+                      anim: _anim,
+                      delay: e.key * 200,
+                      isMobile: isMobile,
+                    ),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }

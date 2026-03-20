@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 
@@ -58,6 +59,13 @@ class _GlowingOrbCursorState extends State<GlowingOrbCursor>
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = !kIsWeb ||
+        MediaQuery.of(context).size.width < 768 ||
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+
+    if (isMobile) return widget.child;
+
     return MouseRegion(
       cursor: SystemMouseCursors.none,
       onHover: _onHover,
