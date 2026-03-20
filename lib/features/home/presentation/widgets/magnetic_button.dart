@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/theme/app_color_tokens.dart';
 
 enum MagneticButtonVariant { primary, outline }
 
@@ -100,7 +100,11 @@ class _MagneticButtonState extends State<MagneticButton>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final isPrimary = widget.variant == MagneticButtonVariant.primary;
+    // Primary button always has white text/icon (sits on gradient)
+    // Outline button adapts to theme text color
+    final contentColor = isPrimary ? Colors.white : colors.textPrimary;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -121,7 +125,7 @@ class _MagneticButtonState extends State<MagneticButton>
               decoration: BoxDecoration(
                 gradient: isPrimary
                     ? LinearGradient(
-                        colors: AppColors.heroGradient,
+                        colors: colors.heroGradient,
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       )
@@ -132,27 +136,27 @@ class _MagneticButtonState extends State<MagneticButton>
                     ? null
                     : Border.all(
                         color: _hovered
-                            ? AppColors.accent
-                            : AppColors.accent.withOpacity(0.5),
+                            ? colors.accent
+                            : colors.accent.withOpacity(0.5),
                         width: 1.5,
                       ),
                 boxShadow: _hovered
                     ? isPrimary
                         ? [
                             BoxShadow(
-                              color: AppColors.accent.withOpacity(0.45),
+                              color: colors.accent.withOpacity(0.45),
                               blurRadius: 30,
                               spreadRadius: 4,
                             ),
                             BoxShadow(
-                              color: AppColors.accentGlow.withOpacity(0.2),
+                              color: colors.accentGlow.withOpacity(0.2),
                               blurRadius: 60,
                               spreadRadius: 8,
                             ),
                           ]
                         : [
                             BoxShadow(
-                              color: AppColors.accent.withOpacity(0.2),
+                              color: colors.accent.withOpacity(0.2),
                               blurRadius: 20,
                               spreadRadius: 2,
                             ),
@@ -160,7 +164,7 @@ class _MagneticButtonState extends State<MagneticButton>
                     : isPrimary
                         ? [
                             BoxShadow(
-                              color: AppColors.accent.withOpacity(0.2),
+                              color: colors.accent.withOpacity(0.2),
                               blurRadius: 15,
                             ),
                           ]
@@ -172,14 +176,16 @@ class _MagneticButtonState extends State<MagneticButton>
                   if (widget.icon != null) ...[
                     Icon(
                       widget.icon,
-                      color: AppColors.textPrimary,
+                      color: contentColor,
                       size: 18,
                     ),
                     const SizedBox(width: 8),
                   ],
                   Text(
                     widget.label,
-                    style: AppTextStyles.buttonLabel,
+                    style: AppTextStyles.buttonLabel.copyWith(
+                      color: contentColor,
+                    ),
                   ),
                 ],
               ),

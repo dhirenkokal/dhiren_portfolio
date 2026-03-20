@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/theme/app_color_tokens.dart';
 
 class LiveCounters extends StatefulWidget {
   const LiveCounters({super.key});
@@ -126,6 +126,7 @@ class _CounterCardState extends State<_CounterCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final isMobile = widget.isMobile;
 
     return MouseRegion(
@@ -135,8 +136,7 @@ class _CounterCardState extends State<_CounterCard> {
       child: AnimatedBuilder(
         animation: widget.anim,
         builder: (context, _) {
-          final value =
-              (widget.data.end * widget.anim.value).round();
+          final value = (widget.data.end * widget.anim.value).round();
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             margin: isMobile
@@ -145,19 +145,19 @@ class _CounterCardState extends State<_CounterCard> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: _hovered
-                  ? AppColors.cardBackground
-                  : AppColors.cardBackground.withOpacity(0.6),
+                  ? colors.cardBackground
+                  : colors.cardBackground.withOpacity(0.6),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _hovered
-                    ? AppColors.accent.withOpacity(0.4)
-                    : AppColors.cardBorder,
+                    ? colors.accent.withOpacity(0.4)
+                    : colors.cardBorder,
                 width: 1,
               ),
               boxShadow: _hovered
                   ? [
                       BoxShadow(
-                        color: AppColors.accent.withOpacity(0.12),
+                        color: colors.accent.withOpacity(0.12),
                         blurRadius: 30,
                         spreadRadius: 2,
                       ),
@@ -170,21 +170,22 @@ class _CounterCardState extends State<_CounterCard> {
               children: [
                 Icon(
                   widget.data.icon,
-                  color: AppColors.accent.withOpacity(0.8),
+                  color: colors.accent.withOpacity(0.8),
                   size: isMobile ? 20 : 24,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   '$value${widget.data.suffix}',
                   style: isMobile
-                      ? AppTextStyles.counterValueMobile
-                      : AppTextStyles.counterValue,
+                      ? AppTextStyles.counterValueMobile.copyWith(color: colors.accent)
+                      : AppTextStyles.counterValue.copyWith(color: colors.accent),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   widget.data.label,
                   style: AppTextStyles.counterLabel.copyWith(
+                    color: colors.textSecondary,
                     fontSize: isMobile ? 10 : 12,
                     letterSpacing: 1,
                   ),

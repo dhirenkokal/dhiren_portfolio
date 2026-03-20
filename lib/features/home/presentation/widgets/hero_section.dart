@@ -2,8 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/theme/app_color_tokens.dart';
 import 'magnetic_button.dart';
 
 class HeroSection extends StatelessWidget {
@@ -30,7 +30,6 @@ class _DesktopHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // On tablet: show avatar smaller to avoid overflow
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -67,6 +66,7 @@ class _HeroContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final w = MediaQuery.of(context).size.width;
     final isTablet = w < 1100 && w >= 768;
     return Column(
@@ -75,13 +75,12 @@ class _HeroContent extends StatelessWidget {
       children: [
         // Tag line
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.accent.withOpacity(0.1),
+            color: colors.accent.withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
             border:
-                Border.all(color: AppColors.accent.withOpacity(0.3), width: 1),
+                Border.all(color: colors.accent.withOpacity(0.3), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -90,11 +89,11 @@ class _HeroContent extends StatelessWidget {
                 width: 7,
                 height: 7,
                 decoration: BoxDecoration(
-                  color: AppColors.accent,
+                  color: colors.accent,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.accent.withOpacity(0.8),
+                      color: colors.accent.withOpacity(0.8),
                       blurRadius: 6,
                     ),
                   ],
@@ -104,7 +103,7 @@ class _HeroContent extends StatelessWidget {
               Text(
                 'Available for Work',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.accent,
+                  color: colors.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -132,9 +131,10 @@ class _HeroContent extends StatelessWidget {
         // Title
         Text(
           'Mobile Application Engineer',
-          style: isMobile
-              ? AppTextStyles.heroTitleMobile
-              : AppTextStyles.heroTitle,
+          style: (isMobile
+                  ? AppTextStyles.heroTitleMobile
+                  : AppTextStyles.heroTitle)
+              .copyWith(color: colors.accent),
           textAlign: isMobile ? TextAlign.center : TextAlign.start,
         )
             .animate()
@@ -146,7 +146,8 @@ class _HeroContent extends StatelessWidget {
         // Subtitle
         Text(
           'Flutter  ·  Android  ·  Clean Architecture',
-          style: AppTextStyles.heroSubtitle,
+          style: AppTextStyles.heroSubtitle
+              .copyWith(color: colors.textSecondary),
           textAlign: isMobile ? TextAlign.center : TextAlign.start,
         )
             .animate()
@@ -166,15 +167,13 @@ class _HeroContent extends StatelessWidget {
         Wrap(
           spacing: 16,
           runSpacing: 16,
-          alignment:
-              isMobile ? WrapAlignment.center : WrapAlignment.start,
+          alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           children: [
             MagneticButton(
               label: 'Download CV',
               icon: Icons.download_rounded,
               variant: MagneticButtonVariant.primary,
               onTap: () async {
-                // Resume URL placeholder
                 final uri = Uri.parse('mailto:dhirenkokal@gmail.com?subject=CV Request');
                 if (await canLaunchUrl(uri)) launchUrl(uri);
               },
@@ -211,12 +210,14 @@ class _HeroSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final align = isMobile ? TextAlign.center : TextAlign.start;
-    final crossAxis = isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start;
+    final crossAxis =
+        isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start;
 
-    final base = AppTextStyles.bodyMedium;
+    final base = AppTextStyles.bodyMedium.copyWith(color: colors.textSecondary);
     final strong = base.copyWith(
-      color: AppColors.textPrimary,
+      color: colors.textPrimary,
       fontWeight: FontWeight.w600,
     );
 
@@ -230,23 +231,26 @@ class _HeroSummary extends StatelessWidget {
             text: TextSpan(
               style: base,
               children: [
-                TextSpan(text: 'I build '),
+                const TextSpan(text: 'I build '),
                 TextSpan(text: 'cross-platform mobile apps', style: strong),
-                TextSpan(text: ' that are fast, maintainable, and production-ready. Proficient in '),
-                _codeChip('Flutter'),
-                TextSpan(text: ' and native '),
-                _codeChip('Android'),
-                TextSpan(text: ' ('),
-                _codeChip('Kotlin'),
-                TextSpan(text: ' + '),
-                _codeChip('Jetpack Compose'),
+                const TextSpan(
+                    text:
+                        ' that are fast, maintainable, and production-ready. Proficient in '),
+                _codeChip('Flutter', colors),
+                const TextSpan(text: ' and native '),
+                _codeChip('Android', colors),
+                const TextSpan(text: ' ('),
+                _codeChip('Kotlin', colors),
+                const TextSpan(text: ' + '),
+                _codeChip('Jetpack Compose', colors),
                 TextSpan(text: "), I've architected a "),
                 TextSpan(text: '747K+ line', style: strong),
-                TextSpan(text: ' IoT platform from scratch — spanning '),
+                const TextSpan(
+                    text: ' IoT platform from scratch — spanning '),
                 TextSpan(text: 'BLE device control', style: strong),
-                TextSpan(text: ', real-time dashboards, and '),
+                const TextSpan(text: ', real-time dashboards, and '),
                 TextSpan(text: 'AI-assisted', style: strong),
-                TextSpan(text: ' development workflows.'),
+                const TextSpan(text: ' development workflows.'),
               ],
             ),
           ),
@@ -257,8 +261,12 @@ class _HeroSummary extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: const [
-              'Flutter', 'Kotlin', 'Jetpack Compose',
-              'Clean Architecture', 'BLE / IoT', 'Firebase',
+              'Flutter',
+              'Kotlin',
+              'Jetpack Compose',
+              'Clean Architecture',
+              'BLE / IoT',
+              'Firebase',
             ].map((tag) => _TechTag(label: tag)).toList(),
           ),
         ],
@@ -267,23 +275,24 @@ class _HeroSummary extends StatelessWidget {
   }
 }
 
-InlineSpan _codeChip(String label) {
+InlineSpan _codeChip(String label, AppColorTokens colors) {
   return WidgetSpan(
     alignment: PlaceholderAlignment.middle,
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 3),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.accent.withOpacity(0.1),
+        color: colors.accent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: AppColors.accent.withOpacity(0.25), width: 1),
+        border:
+            Border.all(color: colors.accent.withOpacity(0.25), width: 1),
       ),
       child: Text(
         label,
         style: AppTextStyles.bodyMedium.copyWith(
           fontFamily: 'JetBrainsMono',
           fontSize: 13,
-          color: AppColors.textPrimary,
+          color: colors.textPrimary,
           fontWeight: FontWeight.w500,
           height: 1,
         ),
@@ -298,18 +307,20 @@ class _TechTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.accent.withOpacity(0.08),
+        color: colors.accent.withOpacity(0.08),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppColors.accent.withOpacity(0.2), width: 1),
+        border:
+            Border.all(color: colors.accent.withOpacity(0.2), width: 1),
       ),
       child: Text(
         label,
         style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 12,
-          color: AppColors.textSecondary,
+          color: colors.textSecondary,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.3,
         ),
@@ -325,16 +336,23 @@ class _GradientText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final style = isMobile
         ? AppTextStyles.heroNameMobile
         : isTablet
             ? AppTextStyles.heroName.copyWith(fontSize: 52, letterSpacing: -1)
             : AppTextStyles.heroName;
 
+    // Dark theme: white → light-blue gradient
+    // Light theme: dark-navy → deep-blue gradient (visible on light bg)
+    final gradientColors = colors.isDark
+        ? [Colors.white, const Color(0xFFB8E0FF)]
+        : [const Color(0xFF0A1628), colors.accentGlow];
+
     return ShaderMask(
       blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => const LinearGradient(
-        colors: [Colors.white, Color(0xFFB8E0FF)],
+      shaderCallback: (bounds) => LinearGradient(
+        colors: gradientColors,
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ).createShader(bounds),
@@ -380,6 +398,7 @@ class _HeroVisualState extends State<_HeroVisual>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AnimatedBuilder(
       animation: _floatAnim,
       builder: (context, _) => Transform.translate(
@@ -392,7 +411,11 @@ class _HeroVisualState extends State<_HeroVisual>
               alignment: Alignment.center,
               children: [
                 CustomPaint(
-                  painter: _AvatarPainter(),
+                  painter: _AvatarPainter(
+                    accent: colors.accent,
+                    cardBackground: colors.cardBackground,
+                    backgroundSecondary: colors.backgroundSecondary,
+                  ),
                   size: Size(widget.size, widget.size),
                 ),
                 ClipOval(
@@ -408,7 +431,11 @@ class _HeroVisualState extends State<_HeroVisual>
           )
               .animate(delay: 300.ms)
               .fadeIn(duration: 800.ms)
-              .scale(begin: const Offset(0.85, 0.85), end: const Offset(1, 1), curve: Curves.easeOutCubic),
+              .scale(
+                begin: const Offset(0.85, 0.85),
+                end: const Offset(1, 1),
+                curve: Curves.easeOutCubic,
+              ),
         ),
       ),
     );
@@ -416,6 +443,16 @@ class _HeroVisualState extends State<_HeroVisual>
 }
 
 class _AvatarPainter extends CustomPainter {
+  final Color accent;
+  final Color cardBackground;
+  final Color backgroundSecondary;
+
+  const _AvatarPainter({
+    required this.accent,
+    required this.cardBackground,
+    required this.backgroundSecondary,
+  });
+
   @override
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
@@ -427,7 +464,7 @@ class _AvatarPainter extends CustomPainter {
       Offset(cx, cy),
       r - 10,
       Paint()
-        ..color = AppColors.accent.withOpacity(0.08)
+        ..color = accent.withOpacity(0.08)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30),
     );
 
@@ -436,7 +473,7 @@ class _AvatarPainter extends CustomPainter {
       Offset(cx, cy),
       r * 0.92,
       Paint()
-        ..color = AppColors.accent.withOpacity(0.2)
+        ..color = accent.withOpacity(0.2)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1,
     );
@@ -449,17 +486,14 @@ class _AvatarPainter extends CustomPainter {
       canvas.drawCircle(
         Offset(dx, dy),
         3,
-        Paint()..color = AppColors.accent.withOpacity(0.5),
+        Paint()..color = accent.withOpacity(0.5),
       );
     }
 
     // Main avatar circle
     final avatarPaint = Paint()
       ..shader = RadialGradient(
-        colors: [
-          AppColors.cardBackground,
-          AppColors.backgroundSecondary,
-        ],
+        colors: [cardBackground, backgroundSecondary],
         center: Alignment.topLeft,
       ).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: r * 0.8));
 
@@ -470,16 +504,18 @@ class _AvatarPainter extends CustomPainter {
       Offset(cx, cy),
       r * 0.78,
       Paint()
-        ..color = AppColors.accent.withOpacity(0.25)
+        ..color = accent.withOpacity(0.25)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
-
   }
 
   @override
-  bool shouldRepaint(_AvatarPainter old) => false;
+  bool shouldRepaint(_AvatarPainter old) =>
+      old.accent != accent ||
+      old.cardBackground != cardBackground ||
+      old.backgroundSecondary != backgroundSecondary;
 }
 
 class _SocialLinks extends StatelessWidget {
@@ -533,6 +569,7 @@ class _SocialIconState extends State<_SocialIcon> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -548,19 +585,19 @@ class _SocialIconState extends State<_SocialIcon> {
           height: 44,
           decoration: BoxDecoration(
             color: _hovered
-                ? AppColors.accent.withOpacity(0.15)
-                : AppColors.cardBackground.withOpacity(0.6),
+                ? colors.accent.withOpacity(0.15)
+                : colors.cardBackground.withOpacity(0.6),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _hovered
-                  ? AppColors.accent.withOpacity(0.5)
-                  : AppColors.cardBorder,
+                  ? colors.accent.withOpacity(0.5)
+                  : colors.cardBorder,
               width: 1,
             ),
             boxShadow: _hovered
                 ? [
                     BoxShadow(
-                      color: AppColors.accent.withOpacity(0.2),
+                      color: colors.accent.withOpacity(0.2),
                       blurRadius: 12,
                     ),
                   ]
@@ -568,7 +605,7 @@ class _SocialIconState extends State<_SocialIcon> {
           ),
           child: Icon(
             widget.icon,
-            color: _hovered ? AppColors.accent : AppColors.textMuted,
+            color: _hovered ? colors.accent : colors.textMuted,
             size: 20,
           ),
         ),
