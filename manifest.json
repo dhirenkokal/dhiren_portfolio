@@ -1,11 +1,11 @@
 {
-    "name": "dhiren_portfolio",
-    "short_name": "dhiren_portfolio",
+    "name": "Dhiren Kokal",
+    "short_name": "Dhiren Kokal",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A website for my portfolio",
+    "background_color": "#050A14",
+    "theme_color": "#050A14",
+    "description": "Dhiren Kokal — Mobile Application Engineer Portfolio",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
